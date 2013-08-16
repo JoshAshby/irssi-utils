@@ -1,4 +1,6 @@
-# emit irssi events via ZeroMQ Pub/Sub only if you are away
+# irssi script for sending events out over ZeroMQ. Modifiled from
+# the script here: https://github.com/mrtazz/irssi-zeromq so that 
+# it now only sends events if you are away
 use strict;
 use vars qw($VERSION %IRSSI);
 use ZeroMQ qw/:all/;
@@ -6,8 +8,8 @@ use ZeroMQ qw/:all/;
 use Irssi;
 $VERSION = '0.1.0';
 %IRSSI = (
-  authors     => 'Daniel Schauenberg',
-  contact     => 'd@unwiredcouch.com',
+  authors     => 'Daniel Schauenberg, Joshua Ashby',
+  contact     => 'd@unwiredcouch.com, joshuaashby@joshashby.com',
   name        => 'zeromq',
   description => 'Distribute irssi events via zeroMQ pub/sub',
   url         => 'https://github.com/mrtazz/irssi-zeromq',
