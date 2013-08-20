@@ -16,10 +16,11 @@ from parse import parse
 
 import pushover
 
-WHAT_R_WE_DOIN   = "pushover"
-WAIT_HOW_LONG    = 1
-WHERE_IS_ZMQ     = "tcp://127.0.0.1:5000"
-WHAT_IS_OUR_NAME = "JoshAshby"
+WHAT_R_WE_DOIN            = "notify"
+WAIT_HOW_LONG             = 3
+WHERE_IS_ZMQ              = "tcp://127.0.0.1:5000"
+WHAT_IS_OUR_NAME          = "JoshAshby"
+WHAT_CHANNELS_WE_WANT_BRO = ["#it"]
 
 context = zmq.Context()
 socket = context.socket(zmq.SUB)
@@ -29,7 +30,7 @@ socket.setsockopt(zmq.SUBSCRIBE, 'irssi')
 
 channel_bucket = {}
 
-message_format = "irssi [{type}][{away_status}][{channel}][{nick}]{message}"
+message_format = "irssi [{type}][{away_status:d}][{channel}][{nick}]{message}"
 
 
 def publish_pushover(data):
@@ -54,8 +55,9 @@ def listen_blocking():
             raw = socket.recv()
             parsed_data = parse(message_format, raw).named
 
-            if (parsed_data["type"] == "private" or WHAT_IS_OUR_NAME in
-              parsed_data["message"]) and parsed_data["away_status"]:
+            if ((parsed_data["type"] == "private" or WHAT_IS_OUR_NAME in\
+              parsed_data["message"]) and parsed_data["away_status"]) or\
+              parsed_data["channel"] in WHAT_CHANNELS_WE_WANT_BRO:
                 time = arrow.utcnow()
 
                 if parsed_data["channel"] in channel_bucket:
@@ -77,6 +79,9 @@ def listen_blocking():
                     if channel_bucket[parsed_data["channel"]] >= WAIT_HOW_LONG:
                         channel_bucket[parsed_data["channel"]] = 0
                         publish_pushover(local_data)
+
+        except AttributeError:
+            pass
 
         except KeyboardInterrupt:
             break;
