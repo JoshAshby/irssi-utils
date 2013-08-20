@@ -64,8 +64,10 @@ def pushover(message, title="", timestamp="", device="", url="",
     if priority:  pushover_data["priority"]  = priority
     if sound:     pushover_data["sound"]     = sound
 
-    result = requests.post(pushover_api, pushover_data).json()
+    result = requests.post(api, pushover_data).json()
 
     if result["status"] != 1:
         raise PushoverException("Something went wrong!: %s"
                                  % result["errors"])
+
+    return result

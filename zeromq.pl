@@ -1,18 +1,16 @@
-# irssi script for sending events out over ZeroMQ. Modifiled from
-# the script here: https://github.com/mrtazz/irssi-zeromq so that 
-# it now only sends events if you are away
+# emit irssi events via ZeroMQ Pub/Sub
 use strict;
 use vars qw($VERSION %IRSSI);
 use ZeroMQ qw/:all/;
 
 use Irssi;
-$VERSION = '0.1.0';
+$VERSION = '0.1.1';
 %IRSSI = (
   authors     => 'Daniel Schauenberg, Joshua Ashby',
   contact     => 'd@unwiredcouch.com, joshuaashby@joshashby.com',
   name        => 'zeromq',
   description => 'Distribute irssi events via zeroMQ pub/sub',
-  url         => 'https://github.com/mrtazz/irssi-zeromq',
+  url         => 'https://github.com/JoshAshby/irssi-utils',
   license     => 'MIT'
 );
 
@@ -34,20 +32,16 @@ my $away_status = 0;
 #--------------------------------------------------------------------
 sub priv_msg
 {
-  my ($server,$msg,$nick,$address,$target) = @_;
-  publish($nick." " .$msg );
+  my ($server, $msg, $nick, $address) = @_;
+  publish("[private][".$away_status."][me][".$nick."]".$msg);
 }
 
-#--------------------------------------------------------------------
-# Function to extract hilights
-#--------------------------------------------------------------------
-sub hilight
-{
-  my ($dest, $text, $stripped) = @_;
-  if ($dest->{level} & MSGLEVEL_HILIGHT) {
-    publish($dest->{target}. " " .$stripped );
-  }
+sub pub_talk {
+  my ($server, $msg, $nick, $address, $target) = @_;
+
+  publish("[public][".$away_status."][".$target."][".$nick."]".$msg);
 }
+
 
 #--------------------------------------------------------------------
 # ZeroMQ publish function
@@ -55,22 +49,24 @@ sub hilight
 sub publish
 {
   my ($text) = @_;
-  # Send message to all subscribers
-  if($away_status == 1) {
-    $publisher->send('irssi '.$text);
-  }
+  $publisher->send('irssi '.$text);
 }
 
 sub away {
   my ($req) = @_;
   $away_status = $req->{usermode_away};
+  if($away_status) {
+    publish("[away]True");
+  } else {
+    publish("[away]False");
+  }
 }
 
 #--------------------------------------------------------------------
 # Bind the IRSSI signals to functions
 #--------------------------------------------------------------------
 Irssi::signal_add_last('message private', 'priv_msg');
-Irssi::signal_add('print text', 'hilight');
 Irssi::signal_add('away mode changed', 'away');
+Irssi::signal_add('message public', 'pub_talk');
 
 #- end
