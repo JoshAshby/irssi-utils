@@ -8,8 +8,8 @@ import requests
 
 api = "https://api.pushover.net/1/messages.json"
 
-user_key = os.environ['PUSHOVER_USER']
-app_key  = os.environ['PUSHOVER_APP']
+user_key = os.environ['PUSHOVER_USER'] if 'PUSHOVER_USER' in os.environ else None
+app_key  = os.environ['PUSHOVER_APP'] if 'PUSHOVER_APP' in os.environ else None
 
 
 class PushoverException(Exception): pass
@@ -31,6 +31,12 @@ def pushover(message, title="", timestamp="", device="", url="",
     :param user_key: Your pushover user key, again this can be passed or
       stored in PUSHOVER_USER
     """
+    if not app_key:
+        raise PushoverException("No pushover app key supplied")
+
+    if not user_key:
+        raise PushoverException("No pushover user key supplied")
+
     if len(message + title) > 512:
         raise PushoverException("""Message over 512 characters long.\
                                    Skipping adding to queue""")

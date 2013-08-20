@@ -32,7 +32,9 @@ def publish_pushover(data):
     data["date"] = data["date"].timestamp
 
     try:
-      pushover.pushover(**data)
+        pushover.pushover(**data)
+    except Exception as e:
+        print "Failed " + e
 
 
 def publish_notify(data):
@@ -42,33 +44,36 @@ def publish_notify(data):
     subprocess.Popen(['notify-send', alert])
 
 
-def listen():
-    channel, message = socket.recv().split(' ', 1)[1].split(' ', 1)
-    print channel
+def listen_blocking():
+    while True:
+        try:
+            channel, message = socket.recv().split(' ', 1)[1].split(' ', 1)
+            print channel
 
-    time = arrow.utcnow()
+            time = arrow.utcnow()
 
-    if channel in channel_bucket:
-        channel_bucket[channel] += 1
-    else:
-        channel_bucket[channel] = 1
+            if channel in channel_bucket:
+                channel_bucket[channel] += 1
+            else:
+                channel_bucket[channel] = 1
 
 
-    local_data = {
-        "message": message,
-        "title":   channel,
-        "date":    time
-    }
+            local_data = {
+                "message": message,
+                "title":   channel,
+                "date":    time
+            }
 
-    if WHAT_R_WE_DOIN == "notify":
-        publish_notify(local_data)
+            if WHAT_R_WE_DOIN == "notify":
+                publish_notify(local_data)
 
-    else:
-        if channel_bucket[channel] >= WAIT_HOW_LONG:
-            channel_bucket[channel] = 0
-            publish_pushover(local_data)
+            else:
+                if channel_bucket[channel] >= WAIT_HOW_LONG:
+                    channel_bucket[channel] = 0
+                    publish_pushover(local_data)
+        except KeyboardInterrupt:
+            break;
 
 
 if __name__ == "__main__":
-    while True:
-        listen()
+    listen_blocking()
