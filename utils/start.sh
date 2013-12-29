@@ -10,4 +10,4 @@ if [ -z "$STATE" ]; then
   export PUSHOVER_USER=wat
 fi
 
-python irssi-notify.py
+python irssi-nofity.py
