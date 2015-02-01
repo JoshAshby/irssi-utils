@@ -3,6 +3,7 @@ servers = (
     address = "irc.freenode.net";
     chatnet = "freenode";
     port = "6667";
+    autoconnect = "yes";
   },
   {
     address = "icarus.p1k3.org";
@@ -24,8 +25,7 @@ chatnets = {
 
 channels = (
   { name = "#linuxandsci"; chatnet = "freenode"; autojoin = "Yes"; },
-  { name = "#channel"; chatnet = "p1k3"; autojoin = "yes"; },
-  { name = "#sparkfun"; chatnet = "freenode"; autojoin = "No"; }
+  { name = "#channel"; chatnet = "p1k3"; autojoin = "yes"; }
 );
 
 aliases = {
