@@ -203,6 +203,10 @@ settings = {
   "fe-text" = { actlist_sort = "refnum"; };
   "fe-common/core" = { autolog = "yes"; };
   "perl/core/scripts" = {
+    irssi_notify_debug = "0";
+    irssi_notify_udp = "1";
+    irssi_notify_pushbullet = "1";
+    irssi_notify_pushbullet_key = "<batman>";
     autoaway_timeout = "120";
     tmux_away_active = "yes";
     tmux_away_message = "I'm not hooooooooome right now. However any PM's will be forwarded to my phone.";
